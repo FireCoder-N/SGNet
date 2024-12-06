@@ -2,7 +2,49 @@
 <p align="center"><a href="https://scholar.google.com/citations?user=VogTuQkAAAAJ&hl=zh-CN">Zhengxue Wang</a>, <a href="https://scholar.google.com/citations?user=hnrkzIEAAAAJ&hl=zh-CN&oi=sra">Zhiqiang Yan✉</a>, <a href="https://scholar.google.com/citations?user=6CIDtZQAAAAJ&hl=zh-CN">Jian Yang✉</p>
 <p align="center">PCA Lab, Nanjing University of Science and Technology, China</p>
 
-### This repository is an official PyTorch implementation of our <a href="https://arxiv.org/pdf/2312.05799.pdf">SGNet</a> (AAAI 2024).
+### ⚠︎ This repository is a fork implementation of https://github.com/yanzq95/SGNet
+
+**<u>This is not my work, I simply used this, as presented in the github repository for my thesis</u>**.
+
+There have been minor changes to make this work on my system (windows 11, python 3.10, cuda 12.1 running on the Nvidia GTX 1080 Ti GPU).
+
+the `convert.py` file is what I used to convert `.npy` files (one for each image to a collective one, as well as extract `minmax.npy`). It may contain mistakes.
+
+## Dependencies
+
+Python 3.10.11
+
+`pip install -r requirements.txt`
+
+For pytorch installation use the original [site](https://pytorch.org/)
+
+```
+torch==2.5.1+cu121
+torchaudio==2.5.1+cu121
+torchvision==0.20.1+cu121
+numpy==1.26.4
+scipy==1.14.1
+thop==0.1.1.post2209072238
+pillow==10.4.0
+tqdm==4.66.5
+```
+
+## Model
+Used file `SGNet_X16_R.pth" from [here](https://drive.google.com/drive/folders/17mCRfsNj0f_BNY3viHcR6M1camCVoAb8?usp=sharing).
+
+See `models` section below.
+
+## Run
+
+```
+python train.py --root_dir="./nyu_data" --model_dir="./SGNet_X16_R.pth" --results_dir="./results"
+```
+
+---
+---
+# Original ReadMe
+---
+
 
 ## Dependencies
 ```

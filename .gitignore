@@ -1,0 +1,4 @@
+__pycache__/
+SGNet_X16_R.pth
+results/
+nyu_data/

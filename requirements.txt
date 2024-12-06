@@ -1,0 +1,8 @@
+torch==2.5.1+cu121
+torchaudio==2.5.1+cu121
+torchvision==0.20.1+cu121
+numpy==1.26.4
+scipy==1.14.1
+thop==0.1.1.post2209072238
+pillow==10.4.0
+tqdm==4.66.5

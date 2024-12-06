@@ -55,85 +55,85 @@ elif dataset_name == 'Lu':
     dataset = Middlebury_dataset(root_dir=opt.root_dir, scale=opt.scale, transform=data_transform)
     rmse = np.zeros(6)
 
-dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=8)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0)
 data_num = len(dataloader)
 
+if __name__ == "__main__":
+    with torch.no_grad():
+        net.eval()
+        if dataset_name == 'nyu_data':
+            for idx, data in enumerate(dataloader):
+                guidance, lr, gt = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device)
+                out, out_grad = net((guidance, lr))
+                minmax = test_minmax[:, idx]
+                minmax = torch.from_numpy(minmax).cuda()
+                rmse[idx] = calc_rmse(gt[0, 0], out[0, 0], minmax)
+                
+                path_output = '{}/output'.format(opt.results_dir)
+                os.makedirs(path_output, exist_ok=True)
+                path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
+                
+                # Save results  (Save the output depth map)
+                pred = out[0,0] * (minmax[0] - minmax[1]) + minmax[1]
+                pred = pred * 1000.0
+                pred = pred.cpu().detach().numpy()
+                pred = pred.astype(np.uint16)
+                pred = Image.fromarray(pred)
+                pred.save(path_save_pred)
+                
+                # visualization  (Visual depth map)
+                #pred = out[0, 0]
+                #pred = pred.cpu().detach().numpy()
+                #cv2.imwrite(path_save_pred, pred * 255.0)   
+                
+                print(rmse[idx])
+            print(rmse.mean())
+        elif dataset_name == 'RGB-D-D':
+            for idx, data in enumerate(dataloader):
+                guidance, lr, gt, maxx, minn = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device), data[
+                    'max'].to(device), data['min'].to(device)
+                out, out_grad = net((guidance, lr))
+                minmax = [maxx, minn]
+                rmse[idx] = rgbdd_calc_rmse(gt[0, 0], out[0, 0], minmax)
+                
+                path_output = '{}/output'.format(opt.results_dir)
+                os.makedirs(path_output, exist_ok=True)
+                path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
+                
+                # Save results  (Save the output depth map)
+                pred = out[0, 0] * (maxx - minn) + minn
+                pred = pred.cpu().detach().numpy()
+                pred = pred.astype(np.uint16)
+                pred = Image.fromarray(pred)
+                pred.save(path_save_pred)
+                
+                # visualization  (Visual depth map)
+                #pred = out[0, 0]
+                #pred = pred.cpu().detach().numpy()
+                #cv2.imwrite(path_save_pred, pred * 255.0)   
+                print(rmse[idx])
+            print(rmse.mean())
+        elif (dataset_name == 'Middlebury') or (dataset_name == 'Lu'):
+            for idx, data in enumerate(dataloader):
+                guidance, lr, gt = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device)
+                out, out_grad = net((guidance, lr))
+                rmse[idx] = midd_calc_rmse(gt[0, 0], out[0, 0])
+                
+                path_output = '{}/output'.format(opt.results_dir)
+                os.makedirs(path_output, exist_ok=True)
+                path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
+                
+                # Save results  (Save the output depth map)
+                pred = out[0,0] * 255.0
+                pred = pred.cpu().detach().numpy()
+                pred = pred.astype(np.uint16)
+                pred = Image.fromarray(pred)
+                pred.save(path_save_pred)
 
-with torch.no_grad():
-    net.eval()
-    if dataset_name == 'nyu_data':
-        for idx, data in enumerate(dataloader):
-            guidance, lr, gt = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device)
-            out, out_grad = net((guidance, lr))
-            minmax = test_minmax[:, idx]
-            minmax = torch.from_numpy(minmax).cuda()
-            rmse[idx] = calc_rmse(gt[0, 0], out[0, 0], minmax)
-            
-            path_output = '{}/output'.format(opt.results_dir)
-            os.makedirs(path_output, exist_ok=True)
-            path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
-            
-            # Save results  (Save the output depth map)
-            pred = out[0,0] * (minmax[0] - minmax[1]) + minmax[1]
-            pred = pred * 1000.0
-            pred = pred.cpu().detach().numpy()
-            pred = pred.astype(np.uint16)
-            pred = Image.fromarray(pred)
-            pred.save(path_save_pred)
-            
-            # visualization  (Visual depth map)
-            #pred = out[0, 0]
-            #pred = pred.cpu().detach().numpy()
-            #cv2.imwrite(path_save_pred, pred * 255.0)   
-            
-            print(rmse[idx])
-        print(rmse.mean())
-    elif dataset_name == 'RGB-D-D':
-        for idx, data in enumerate(dataloader):
-            guidance, lr, gt, maxx, minn = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device), data[
-                'max'].to(device), data['min'].to(device)
-            out, out_grad = net((guidance, lr))
-            minmax = [maxx, minn]
-            rmse[idx] = rgbdd_calc_rmse(gt[0, 0], out[0, 0], minmax)
-            
-            path_output = '{}/output'.format(opt.results_dir)
-            os.makedirs(path_output, exist_ok=True)
-            path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
-            
-            # Save results  (Save the output depth map)
-            pred = out[0, 0] * (maxx - minn) + minn
-            pred = pred.cpu().detach().numpy()
-            pred = pred.astype(np.uint16)
-            pred = Image.fromarray(pred)
-            pred.save(path_save_pred)
-            
-            # visualization  (Visual depth map)
-            #pred = out[0, 0]
-            #pred = pred.cpu().detach().numpy()
-            #cv2.imwrite(path_save_pred, pred * 255.0)   
-            print(rmse[idx])
-        print(rmse.mean())
-    elif (dataset_name == 'Middlebury') or (dataset_name == 'Lu'):
-        for idx, data in enumerate(dataloader):
-            guidance, lr, gt = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device)
-            out, out_grad = net((guidance, lr))
-            rmse[idx] = midd_calc_rmse(gt[0, 0], out[0, 0])
-            
-            path_output = '{}/output'.format(opt.results_dir)
-            os.makedirs(path_output, exist_ok=True)
-            path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
-            
-            # Save results  (Save the output depth map)
-            pred = out[0,0] * 255.0
-            pred = pred.cpu().detach().numpy()
-            pred = pred.astype(np.uint16)
-            pred = Image.fromarray(pred)
-            pred.save(path_save_pred)
+                # visualization  (Visual depth map)
+                #pred = out[0, 0]
+                #pred = pred.cpu().detach().numpy()
+                #cv2.imwrite(path_save_pred, pred * 255.0)   
 
-            # visualization  (Visual depth map)
-            #pred = out[0, 0]
-            #pred = pred.cpu().detach().numpy()
-            #cv2.imwrite(path_save_pred, pred * 255.0)   
-
-            print(rmse[idx])
-        print(rmse.mean())
+                print(rmse[idx])
+            print(rmse.mean())
