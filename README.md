@@ -35,7 +35,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```
 
 ## Model
-Used file `SGNet_X16_R.pth" from [here](https://drive.google.com/drive/folders/17mCRfsNj0f_BNY3viHcR6M1camCVoAb8?usp=sharing).
+Used file `SGNet_X16_R.pth` from [here](https://drive.google.com/drive/folders/17mCRfsNj0f_BNY3viHcR6M1camCVoAb8?usp=sharing).
 
 See `models` section below.
 
