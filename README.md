@@ -16,8 +16,6 @@ Python 3.10.11
 
 `pip install -r requirements.txt`
 
-For pytorch installation use the original [site](https://pytorch.org/)
-
 ```
 torch==2.5.1+cu121
 torchaudio==2.5.1+cu121
@@ -29,6 +27,13 @@ pillow==10.4.0
 tqdm==4.66.5
 ```
 
+**<u>Warning:</u>** For pytorch installation it is recommended to use the original [site](https://pytorch.org/).
+
+For installation of the pytorch libraries, as seen both above and on the requirements file, the command copied from said website was:
+```
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+
 ## Model
 Used file `SGNet_X16_R.pth" from [here](https://drive.google.com/drive/folders/17mCRfsNj0f_BNY3viHcR6M1camCVoAb8?usp=sharing).
 
@@ -37,7 +42,7 @@ See `models` section below.
 ## Run
 
 ```
-python train.py --root_dir="./nyu_data" --model_dir="./SGNet_X16_R.pth" --results_dir="./results"
+python test.py --root_dir="./nyu_data" --model_dir="./SGNet_X16_R.pth" --results_dir="./results"
 ```
 
 ---

@@ -24,6 +24,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+from tqdm import tqdm
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--scale', type=int, default=16, help='scale factor')
 parser.add_argument("--num_feats", type=int, default=40, help="channel number of the middle hidden layer")
@@ -62,7 +64,7 @@ if __name__ == "__main__":
     with torch.no_grad():
         net.eval()
         if dataset_name == 'nyu_data':
-            for idx, data in enumerate(dataloader):
+            for idx, data in tqdm(enumerate(dataloader)):
                 guidance, lr, gt = data['guidance'].to(device), data['lr'].to(device), data['gt'].to(device)
                 out, out_grad = net((guidance, lr))
                 minmax = test_minmax[:, idx]
@@ -72,21 +74,33 @@ if __name__ == "__main__":
                 path_output = '{}/output'.format(opt.results_dir)
                 os.makedirs(path_output, exist_ok=True)
                 path_save_pred = '{}/{:010d}.png'.format(path_output, idx)
-                
-                # Save results  (Save the output depth map)
-                pred = out[0,0] * (minmax[0] - minmax[1]) + minmax[1]
-                pred = pred * 1000.0
-                pred = pred.cpu().detach().numpy()
-                pred = pred.astype(np.uint16)
-                pred = Image.fromarray(pred)
-                pred.save(path_save_pred)
-                
+
+                # ------------
+                # Debugging
+                # ------------
+                # raw_pred = out[0,0].cpu().detach().numpy()
+                # # raw_pred_visual = (raw_pred - raw_pred.min()) / (raw_pred.max() - raw_pred.min())
+                # cv2.imwrite(f"{path_output}/raw_{idx:010d}.png", (raw_pred * 255.0).astype(np.uint8))
+
                 # visualization  (Visual depth map)
                 #pred = out[0, 0]
                 #pred = pred.cpu().detach().numpy()
-                #cv2.imwrite(path_save_pred, pred * 255.0)   
+                #cv2.imwrite(path_save_pred, pred * 255.0)
                 
-                print(rmse[idx])
+                # Save results  (Save the output depth map)
+                pred = out[0,0].cpu().detach().numpy()
+                minmax_np = minmax.cpu().numpy()
+                # prediction
+                # pred = pred * (minmax_np[1] - minmax_np[0])
+
+                # prediction inverted
+                pred = (1-pred) * (minmax_np[1] - minmax_np[0])
+                
+                pred = pred.astype(np.uint8)
+                pred = Image.fromarray(pred)
+                pred.save(path_save_pred)
+                
+                # print(rmse[idx])
             print(rmse.mean())
         elif dataset_name == 'RGB-D-D':
             for idx, data in enumerate(dataloader):
